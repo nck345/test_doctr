@@ -63,12 +63,11 @@ MyDrive/
 
 ### 2. Chạy đo Metrics (Phần 2 - Dùng chung):
 * Mở Google Colab $\rightarrow$ Mở file **`metrics.ipynb`** từ thư mục `Colab Notebooks` trên Google Drive.
-* Bật GPU: Menu **Runtime** $\rightarrow$ **Change runtime type** $\rightarrow$ Chọn **T4 GPU** để RapidOCR và ONNX Runtime chạy tăng tốc CUDA.
-* Bấm **Run all**:
-  * Notebook sẽ tự động đọc ảnh từ thư mục `predictions/DocTr/`.
-  * So khớp với ảnh scan chuẩn trong `data_benchmark/scan/scan/`.
-  * Cơ chế cache Ground Truth và GPU giúp tốc độ OCR hoàn thành nhanh gọn.
-  * Đo đồng thời 4 chỉ số: **MS-SSIM (↑), CER (↓), Levenshtein ED (↓), Thời gian (s)**.
+* Bật GPU: Menu **Runtime** $\rightarrow$ **Change runtime type** $\rightarrow$ Chọn **T4 GPU**.
+* Các bước chạy:
+  * **Ô 0 (Kiểm tra GPU):** Bấm chạy trong 1 giây để xác nhận GPU và kích hoạt chip GPU ngay lập tức.
+  * **Ô 1 (Cài đặt):** Chạy 1 lần duy nhất khi mở máy (nếu mới cài xong thì Restart session 1 lần như hướng dẫn trong ô).
+  * **Ô 2 & Ô 3:** Cấu hình tên model và bấm chạy đo kiểm toàn bộ 130 ảnh tự động.
   * Tự động xuất file báo cáo **`eval_reports/DocTr_metrics.csv`** lưu thẳng vào Google Drive.
 
 ---
