@@ -14,10 +14,17 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 class GeoTrP(nn.Module):
     def __init__(self):
         super(GeoTrP, self).__init__()
-        self.GeoTr = GeoTr()
+        # Check if checkpoint matches GeoTrOrig or GeoTr
+        try:
+            from GeoTr_orig import GeoTr as GeoTrModel
+            self.GeoTr = GeoTrModel(num_attn_layers=6)
+        except Exception:
+            self.GeoTr = GeoTr()
         
     def forward(self, x):
         bm = self.GeoTr(x)
@@ -31,10 +38,10 @@ def reload_model(model, path=""):
         return model
     else:
         model_dict = model.state_dict()
-        pretrained_dict = torch.load(path, map_location='cuda:0')
-        print(len(pretrained_dict.keys()))
+        pretrained_dict = torch.load(path, map_location=device)
+        print(f"Loading weights from {path}: total keys = {len(pretrained_dict.keys())}")
         pretrained_dict = {k[7:]: v for k, v in pretrained_dict.items() if k[7:] in model_dict}
-        print(len(pretrained_dict.keys()))
+        print(f"Matched keys in model = {len(pretrained_dict.keys())}")
         model_dict.update(pretrained_dict)
         model.load_state_dict(model_dict)
 
@@ -48,26 +55,26 @@ def rec(opt):
     if not os.path.exists(opt.gsave_path):  # create save path
         os.mkdir(opt.gsave_path)
     
-    GeoTrP = GeoTrP().cuda()
+    GeoTrP_model = GeoTrP().to(device)
     # reload geometric unwarping model
-    reload_model(GeoTrP.GeoTr, opt.GeoTr_path)
+    reload_model(GeoTrP_model.GeoTr, opt.GeoTr_path)
     
     # To eval mode
-    GeoTrP.eval()
+    GeoTrP_model.eval()
   
     for img_path in img_list:
         name = img_path.split('.')[-2]  # image name
 
-        img_path = opt.distorrted_path + img_path  # read image and to tensor
-        im_ori = np.array(Image.open(img_path))[:, :, :3] / 255. 
+        full_img_path = os.path.join(opt.distorrted_path, img_path)
+        im_ori = np.array(Image.open(full_img_path))[:, :, :3] / 255. 
         h, w, _ = im_ori.shape
         im = cv2.resize(im_ori, (288, 288))
         im = im.transpose(2, 0, 1)
-        im = torch.from_numpy(im).float().unsqueeze(0)
+        im = torch.from_numpy(im).float().unsqueeze(0).to(device)
         
         with torch.no_grad():
             # geometric unwarping
-            bm = GeoTrP(im.cuda())
+            bm = GeoTrP_model(im)
             bm = bm.cpu()
             bm0 = cv2.resize(bm[0, 0].numpy(), (w, h))  # x flow
             bm1 = cv2.resize(bm[0, 1].numpy(), (w, h))  # y flow
@@ -77,7 +84,7 @@ def rec(opt):
             
             out = F.grid_sample(torch.from_numpy(im_ori).permute(2,0,1).unsqueeze(0).float(), lbl, align_corners=True)
             img_geo = ((out[0]*255).permute(1, 2, 0).numpy())[:,:,::-1].astype(np.uint8)
-            cv2.imwrite(opt.gsave_path + name + '_geo' + '.png', img_geo)  # save
+            cv2.imwrite(os.path.join(opt.gsave_path, name + '_geo.png'), img_geo)  # save
                     
         print('Done: ', img_path)
 

@@ -1,0 +1,25 @@
+# Large datasets & Weights (Stored on Google Drive)
+data benchmark/
+distorted/
+model_pretrained/*.pth
+model_pretrained/*.pt
+results/
+scratch/
+
+# Temporary / Debug images
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.log
+ocr_img.txt
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Internal draft reports
+BAO_CAO_*.md
+HUONG_DAN_DIEN_SLIDE_*.md
