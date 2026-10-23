@@ -78,14 +78,18 @@ MyDrive/
 * Các bước chạy:
   * **Ô 0 (Kiểm tra GPU):** Bấm chạy trong 1 giây để xác nhận GPU và kích hoạt chip GPU ngay lập tức.
   * **Ô 1 (Cài đặt):** Chạy 1 lần duy nhất khi mở máy (nếu mới cài xong thì Restart session 1 lần như hướng dẫn trong ô).
-  * **Ô 2 (Cấu hình):** Chọn tập benchmark và tên mô hình:
+  * **Ô 2 (Cấu hình):** Chọn tập benchmark, tên mô hình và số luồng xử lý:
     ```python
     BENCHMARK_NAME = "docunet_paper_subset"  # Hoặc "docunet_130", "dir300", "docreal"
     MODEL_NAME = "DocTr"
+    NUM_WORKERS = 4       # Chạy song song 4 luồng trên GPU Tesla T4
+    USE_LOCAL_SSD = True  # Đọc ảnh từ SSD cục bộ (/content/) để tránh nghẽn I/O Google Drive
     ```
-  * **Ô 3 (Đo kiểm tăng tốc GPU):** Bấm chạy đo kiểm tự động.
-    * Đã tối ưu `use_angle_cls=False` và `rec_batch_num=64` giúp GPU T4 chạy nhanh hơn 2x-3x.
-    * Tự động cache kết quả OCR của ảnh scan chuẩn vào file JSON trên Google Drive (`gt_cache/`). Lần chạy sau chỉ mất 0.01s đọc cache, không cần OCR lại scan, tiết kiệm hơn 50% thời gian!
+  * **Ô 2b (Tùy chọn cho tập mới):** Tiền tạo cache OCR ảnh scan chuẩn bằng 4 luồng trước khi đo, giúp các lần đo sau không phải chờ OCR ảnh scan.
+  * **Ô 3 (Đo kiểm tăng tốc 4 luồng):** Bấm chạy đo kiểm tự động.
+    * Tự động đồng bộ ảnh sang SSD cục bộ `/content/` giúp tốc độ đọc file nhanh gấp 100 lần.
+    * Chạy song song 4 luồng trên GPU Tesla T4, in tiến độ thời gian thực.
+    * Tự động nạp bộ đệm cache ảnh scan chuẩn từ file JSON trên Google Drive (`gt_cache/`). Lần chạy sau chỉ mất 0.01s đọc cache, không cần OCR lại scan, tiết kiệm hơn 50% thời gian!
   * **Ô 4:** Hiển thị dòng tổng kết bằng Pandas DataFrame.
 
 ---
