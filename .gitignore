@@ -1,6 +1,8 @@
 # Large datasets & Weights (Stored on Google Drive)
 data benchmark/
 distorted/
+Document_Dewarp_Benchmark/
+*.zip
 model_pretrained/*.pth
 model_pretrained/*.pt
 results/
