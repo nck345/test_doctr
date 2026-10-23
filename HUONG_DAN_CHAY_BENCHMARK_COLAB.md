@@ -8,22 +8,22 @@
 Quy trình đánh giá được phân tách thành **2 phần độc lập hoàn toàn**:
 
 ```
-[Google Drive: Dữ liệu lớn]               [GitHub: Mã nguồn nhẹ]
+[Google Drive: Dữ liệu lớn]               [GitHub: Repo test_doctr]
   ├── data_benchmark (ảnh crop & scan)       ├── inference.py (chạy DocTr)
-  ├── model_pretrained (.pth > 100MB)        └── eval_benchmark.py (bộ đo universal)
+  ├── model_pretrained (.pth > 100MB)        └── 1_DocTr_Inference_Benchmark.ipynb
   └── predictions (ảnh kết quả)                       │
            │                                          │
            ▼                                          ▼
 ┌─────────────────────────────────┐        ┌─────────────────────────────────┐
 │     PHẦN 1: INFERENCE MODEL     │        │    PHẦN 2: UNIVERSAL EVALUATION │
 │  (1_DocTr_Inference_Benchmark)  │───────►│ (2_Universal_Dewarp_Evaluation) │
-│   Chạy GPU T4 nắn phẳng 130 ảnh │        │ Đo MS-SSIM, CER, ED cho MỌI     │
-│   Thời gian: ~20 giây           │        │ model, xuất báo cáo CSV         │
+│   Chạy GPU T4 nắn phẳng 130 ảnh │        │ Tự chứa 100% code đo MS-SSIM,   │
+│   Thời gian: ~20 giây           │        │ CER, ED cho MỌI model, xuất CSV │
 └─────────────────────────────────┘        └─────────────────────────────────┘
 ```
 
-* **Phần 1 (Inference - Phụ thuộc model):** Chạy mạng nơ-ron của mô hình cụ thể (DocTr) để nắn phẳng 130 ảnh cong đầu vào, xuất ảnh kết quả vào Google Drive.
-* **Phần 2 (Universal Evaluation - Dùng chung vĩnh viễn):** Là bộ công cụ đo kiểm trung tính, không gắn cứng vào DocTr. Bạn có thể dùng Notebook này để đo cho **DocTr, DewarpNet, DocUNet, FDRNet hoặc mô hình bạn tự nghiên cứu** mà không cần sửa code.
+* **Phần 1 (Inference - Thuần DocTr):** Nằm trong repo GitHub `test_doctr`, chạy mạng nơ-ron DocTr để nắn phẳng 130 ảnh cong đầu vào, xuất ảnh kết quả vào Google Drive.
+* **Phần 2 (Universal Evaluation - Độc lập 100%):** File notebook tự chứa toàn bộ thuật toán đo kiểm bên trong (RapidOCR, Levenshtein, SSIM), không phụ thuộc vào bất kỳ repo GitHub nào. Bạn mở file này từ Google Drive lên là đo được cho **DocTr, DewarpNet, DocUNet hoặc mô hình bạn tự nghiên cứu**.
 
 ---
 
