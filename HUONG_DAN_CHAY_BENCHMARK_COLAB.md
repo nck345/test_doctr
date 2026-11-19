@@ -80,17 +80,18 @@ MyDrive/
   * **Ô 1 (Cài đặt):** Chạy 1 lần duy nhất khi mở máy (nếu mới cài xong thì Restart session 1 lần như hướng dẫn trong ô).
   * **Ô 2 (Cấu hình):** Chọn tập benchmark, tên mô hình và số luồng xử lý:
     ```python
-    BENCHMARK_NAME = "docunet_paper_subset"  # Hoặc "docunet_130", "dir300", "docreal"
-    MODEL_NAME = "DocTr"
-    NUM_WORKERS = 4       # Chạy song song 4 luồng trên GPU Tesla T4
-    USE_LOCAL_SSD = True  # Đọc ảnh từ SSD cục bộ (/content/) để tránh nghẽn I/O Google Drive
+    # Chọn 1 tập, danh sách nhiều tập, hoặc 'all' để chạy toàn bộ
+    BENCHMARKS = 'all'  # Hoặc ['docunet_paper_subset', 'dir300', 'docreal'] hoặc 'docunet_paper_subset'
+    MODEL_NAME = 'DocTr'
+    MS_SSIM_BACKEND = 'torch' # Chạy trên GPU float64, độ lệch < 10^-6
+    NUM_WORKERS = 2           # 2 workers song song cho Colab vCPU
+    USE_LOCAL_SSD = True      # Đọc ảnh từ SSD cục bộ (/content/) để tránh nghẽn I/O Google Drive
     ```
-  * **Ô 2b (Tùy chọn cho tập mới):** Tiền tạo cache OCR ảnh scan chuẩn bằng 4 luồng trước khi đo, giúp các lần đo sau không phải chờ OCR ảnh scan.
-  * **Ô 3 (Đo kiểm tăng tốc 4 luồng):** Bấm chạy đo kiểm tự động.
-    * Tự động đồng bộ ảnh sang SSD cục bộ `/content/` giúp tốc độ đọc file nhanh gấp 100 lần.
-    * Chạy song song 4 luồng trên GPU Tesla T4, in tiến độ thời gian thực.
-    * Tự động nạp bộ đệm cache ảnh scan chuẩn từ file JSON trên Google Drive (`gt_cache/`). Lần chạy sau chỉ mất 0.01s đọc cache, không cần OCR lại scan, tiết kiệm hơn 50% thời gian!
-  * **Ô 4:** Hiển thị dòng tổng kết bằng Pandas DataFrame.
+  * **Ô 3 (Đo kiểm tự động):** Bấm chạy đo kiểm.
+    * Tự động quét tuần tự từng tập benchmark trong danh sách.
+    * Xuất báo cáo CSV chi tiết cho từng tập vào `eval_reports/<Model>_<Benchmark>_metrics.csv`.
+    * Tự động tạo bảng tổng hợp Master Summary gom toàn bộ kết quả để dễ dàng so sánh.
+  * **Ô 4:** Hiển thị bảng tổng kết Master Summary bằng Pandas DataFrame.
 
 ---
 
