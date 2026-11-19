@@ -42,7 +42,7 @@ def reload_model(model, path=""):
         model.load_state_dict(model_dict)
         return model
 
-def process_folder(GeoTrP_model, input_dir, output_dir, benchmark_name=''):
+def process_folder(GeoTrP_model, input_dir, output_dir, benchmark_name='', resume=False):
     os.makedirs(output_dir, exist_ok=True)
     img_list = sorted([f for f in os.listdir(input_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))])
     if not img_list:
@@ -55,6 +55,12 @@ def process_folder(GeoTrP_model, input_dir, output_dir, benchmark_name=''):
     pbar = tqdm(img_list, desc=f"{tag:<20}", unit="img", ncols=95)
     for img_path in pbar:
         name = os.path.splitext(img_path)[0]
+        out_file = os.path.join(output_dir, name + '_geo.png')
+        
+        # Nếu bật resume và file kết quả đã tồn tại hợp lệ (> 1KB), bỏ qua không cần nắn lại
+        if resume and os.path.exists(out_file) and os.path.getsize(out_file) > 1024:
+            continue
+
         full_img_path = os.path.join(input_dir, img_path)
         im_ori = np.array(Image.open(full_img_path))[:, :, :3] / 255. 
         h, w, _ = im_ori.shape
@@ -74,7 +80,7 @@ def process_folder(GeoTrP_model, input_dir, output_dir, benchmark_name=''):
             im_tensor = torch.from_numpy(im_ori).permute(2, 0, 1).unsqueeze(0).float().to(device)
             out = F.grid_sample(im_tensor, lbl, align_corners=True)
             img_geo = ((out[0] * 255).permute(1, 2, 0).cpu().numpy())[:, :, ::-1].astype(np.uint8)
-            cv2.imwrite(os.path.join(output_dir, name + '_geo.png'), img_geo)
+            cv2.imwrite(out_file, img_geo)
 
         if device.type == 'cuda':
             vram_mb = torch.cuda.memory_allocated() / (1024**2)
@@ -91,6 +97,7 @@ def main():
     parser.add_argument('--GeoTr_path', default='./model_pretrained/DocTrP.pth')
     parser.add_argument('--base_dir', default=None, help='Base directory of Document_Dewarp_Benchmark')
     parser.add_argument('--benchmarks', nargs='+', default=None, help='List of benchmarks or all')
+    parser.add_argument('--resume', action='store_true', default=False, help='Skip already dewarped valid files')
     
     opt = parser.parse_args()
 
@@ -106,15 +113,15 @@ def main():
         else:
             target_bms = opt.benchmarks
 
-        print(f"\n🚀 Bắt đầu nắn phẳng {len(target_bms)} tập benchmark: {target_bms}")
+        print(f"\n🚀 Bắt đầu nắn phẳng {len(target_bms)} tập benchmark: {target_bms} (Resume: {opt.resume})")
         for bm in target_bms:
             in_dir = os.path.join(opt.base_dir, 'benchmarks', bm, 'crop')
             if not os.path.exists(in_dir):
                 in_dir = os.path.join(opt.base_dir, 'data_benchmark', 'crop', 'crop')
             out_dir = os.path.join(opt.base_dir, 'predictions', 'DocTr', bm)
-            process_folder(GeoTrP_model, in_dir, out_dir, benchmark_name=bm)
+            process_folder(GeoTrP_model, in_dir, out_dir, benchmark_name=bm, resume=opt.resume)
     else:
-        process_folder(GeoTrP_model, opt.distorrted_path, opt.gsave_path)
+        process_folder(GeoTrP_model, opt.distorrted_path, opt.gsave_path, resume=opt.resume)
 
 if __name__ == '__main__':
     main()
