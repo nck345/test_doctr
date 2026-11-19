@@ -56,9 +56,9 @@ MyDrive/
     ├── model_pretrained/              <- File trọng số mô hình (.pth)
     │   ├── DocTrP.pth                 <- File trọng số GeoTr (103 MB)
     │   └── illtr.pth                  <- File trọng số IllTr (51 MB)
-    └── eval_reports/                  <- Nơi lưu trữ file CSV báo cáo kết quả đánh giá
-        ├── DocTr_docunet_paper_subset_metrics.csv
-        └── DocTr_docunet_130_metrics.csv
+    └── eval_reports/                  <- Nơi lưu trữ file CSV báo cáo tóm tắt (không lưu chi tiết từng ảnh)
+        ├── DocTr_summary.csv          <- Bảng tổng kết các tập benchmark của mô hình DocTr
+        └── benchmark_summary.csv      <- Bảng tổng hợp đối chiếu chung tất cả mô hình (Leaderboard)
 ```
 
 ---
