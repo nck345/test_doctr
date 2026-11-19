@@ -22,6 +22,10 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 
+# Notebooks & Docs (Notebooks are stored on Google Drive)
+*.ipynb
+*.md
+
 # Internal draft reports
 BAO_CAO_*.md
 HUONG_DAN_DIEN_SLIDE_*.md
